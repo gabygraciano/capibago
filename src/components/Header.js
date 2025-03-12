@@ -1,3 +1,4 @@
+// src/components/Header.js
 import React from 'react';
 import { 
   View, 
@@ -21,7 +22,11 @@ export default function Header({ bgColor = '#FFF' }) {
           style={styles.logo}
         />
 
-        <TouchableOpacity onPress={() => navigation.navigate('TelaLogin')}>
+        {/* Botão de logout com marginTop */}
+        <TouchableOpacity 
+          style={styles.logoutButton} 
+          onPress={() => navigation.navigate('TelaLogin')}
+        >
           <Ionicons name="log-out-outline" size={40} color="#122C4F" />
         </TouchableOpacity>
       </View>
@@ -47,7 +52,6 @@ export default function Header({ bgColor = '#FFF' }) {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    // REMOVEMOS a cor fixa e deixamos via prop
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 16,
@@ -56,13 +60,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginTop: 15,
+  },
+  // Botão de logout com marginTop
+  logoutButton: {
+    marginTop: 50,
   },
   logo: {
     width: 160,
     height: 70,
     resizeMode: 'contain',
     marginTop: -10,
-    marginBottom: -20,
+    marginBottom: -80,
   },
   profileRow: {
     flexDirection: 'row',
@@ -70,13 +79,15 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   profilePic: {
-    width: 100,
-    height: 100,
+    width: 90,
+    height: 90,
     borderRadius: 16,
     resizeMode: 'cover',
+    marginTop: 5,
   },
   profileTextContainer: {
     marginLeft: 12,
+    marginTop: 27,
   },
   greeting: {
     color: '#122C4F',
