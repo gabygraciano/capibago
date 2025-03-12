@@ -1,50 +1,36 @@
-# Welcome to your Expo app 👋
-
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
-
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Instalação ⬇️
 
 ```bash
-npm run reset-project
+- git clone https://github.com/gabygraciano/capibago.git
+- npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Rodando o projeto 🏃
+```bash
+- npx expo start
+```
 
-## Learn more
+## Como contribuir 🤝
+### Branches
+Pull requests devem ser compostos pelo tipo e nome da branch.\
+os nomes das branchs devem ser separados por "-".\
+os tipo são compostos por:
+- feature - Para novas funcionalidades
+- fix - Para bugfixes e hotfixes
 
-To learn more about developing your project with Expo, look at the following resources:
+Exemplo: 
+`feature/navbar-mobile`
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Commits
+Commits devem ser estruturados da seguinte forma <tipo>(<nome-da-branch>): <descrição do commit>\
+Exemplo: 
+`feature(navbar-mobile): adicionando navegação`
 
-## Join the community
+### Branch padrão
+- develop
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Pull requests
+Pull requests devem ter uma boa e clara descrição.\
+Os 3 principais tópicos da descrição devem ser:
+`- What I did`
+`- How to test`
