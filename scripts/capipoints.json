@@ -1,0 +1,164 @@
+[
+  {
+    "nome": "Mercado de São José",
+    "latitude": -8.06806,
+    "longitude": -34.87775,
+    "qr_code": "MERCADO-1"
+  },
+  {
+    "nome": "Mercado da Boa Vista",
+    "latitude": -8.063192,
+    "longitude": -34.888654,
+    "qr_code": "MERCADO-2"
+  },
+  {
+    "nome": "Mercado da Madalena",
+    "latitude": -8.052439,
+    "longitude": -34.908554,
+    "qr_code": "MERCADO-3"
+  },
+  {
+    "nome": "Mercado da Encruzilhada",
+    "latitude": -8.036873,
+    "longitude": -34.892434,
+    "qr_code": "MERCADO-4"
+  },
+  {
+    "nome": "Mercado de Casa Amarela",
+    "latitude": -8.026599,
+    "longitude": -34.917882,
+    "qr_code": "MERCADO-5"
+  },
+  {
+    "nome": "Mercado do Cordeiro ",
+    "latitude": -8.051698,
+    "longitude": -34.921372,
+    "qr_code": "MERCADO-6"
+  },
+  {
+    "nome": "Museu do Homem do Nordeste",
+    "latitude": -8.030196,
+    "longitude": -34.925281,
+    "qr_code": "MUSEU-1"
+  },
+  {
+    "nome": "Museu Murilo La Greca",
+    "latitude": -8.037325,
+    "longitude": -34.909832,
+    "qr_code": "MUSEU-2"
+  },
+  {
+    "nome": "Museu da Cidade do Recife",
+    "latitude": -8.071313,
+    "longitude": -34.880809,
+    "qr_code": "MUSEU-3"
+  },
+  {
+    "nome": "Museu Militar",
+    "latitude": -8.052803,
+    "longitude": -34.871412,
+    "qr_code": "MUSEU-4"
+  },
+  {
+    "nome": "Museu de Arte Moderna Aloísio Magalhães (Mamam)",
+    "latitude": -8.061285,
+    "longitude": -34.881394,
+    "qr_code": "MUSEU-5"
+  },
+  {
+    "nome": "Museu Franciscano de Arte Sacra",
+    "latitude": -8.062427,
+    "longitude": -34.877231,
+    "qr_code": "MUSEU-6"
+  },
+  {
+    "nome": "Casa-Museu Magdalena e Gilberto Freyre",
+    "latitude": -8.020598,
+    "longitude": -34.938482,
+    "qr_code": "MUSEU-7"
+  },
+  {
+    "nome": "Oficina Brennand",
+    "latitude": -8.052569,
+    "longitude": -34.974795,
+    "qr_code": "MUSEU-8"
+  },
+  {
+    "nome": "Instituto Ricardo Brennand (IRB)",
+    "latitude": -8.065768,
+    "longitude": -34.964301,
+    "qr_code": "MUSEU-9"
+  },
+  {
+    "nome": "Museu da Abolição",
+    "latitude": -8.0571555,
+    "longitude": -34.9090307,
+    "qr_code": "MUSEU-11"
+  },
+  {
+    "nome": "Instituto Arqueológico Histórico e Geográfico de Pernambuco",
+    "latitude": -8.0617337,
+    "longitude": -34.8843858,
+    "qr_code": "MUSEU-12"
+  },
+  {
+    "nome": "Museu de Arte Popular",
+    "latitude": -8.0673105,
+    "longitude": -34.8790074,
+    "qr_code": "MUSEU-13"
+  },
+  {
+    "nome": "Cais do Sertão",
+    "latitude": -8.0631633,
+    "longitude": -34.8711337,
+    "qr_code": "MUSEU-14"
+  },
+  {
+    "nome": "Casa do Carnaval ",
+    "latitude": -8.0667877,
+    "longitude": -34.8790547,
+    "qr_code": "MUSEU-15"
+  },
+  {
+    "nome": "Observatório Cultural Torre Malakoff",
+    "latitude": -8.0631633,
+    "longitude": -34.8711337,
+    "qr_code": "MUSEU-16"
+  },
+  {
+    "nome": "Sinagoga Kahal Zur Israel",
+    "latitude": -8.0618594,
+    "longitude": -34.8713172,
+    "qr_code": "MUSEU-17"
+  },
+  {
+    "nome": "Paço do Frevo",
+    "latitude": -8.0613183,
+    "longitude": -34.8716376,
+    "qr_code": "MUSEU-18"
+  },
+  {
+    "nome": "Memorial Chico Science",
+    "latitude": -8.0671216,
+    "longitude": -34.8788421,
+    "qr_code": "MUSEU-19"
+  },
+  {
+    "nome": "Memorial Luiz Gonzaga",
+    "latitude": -8.0672249,
+    "longitude": -34.8789283,
+    "qr_code": "MUSEU-20"
+  },
+  {
+    "nome": "Museu do Trem",
+    "latitude": -8.0680447,
+    "longitude": -34.8834433,
+    "qr_code": "MUSEU-21"
+  },
+  {
+    "nome": "Museu de Artes Afro-Brasil Rolando Toro",
+    "latitude": -8.0628495,
+    "longitude": -34.873079,
+    "qr_code": "MUSEU-22"
+  }
+]

@@ -1,19 +1,20 @@
+// src/screens/TelaRota.js
 import React, { useEffect, useState, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ActivityIndicator, 
-  TouchableOpacity 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+  Alert
 } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
-
-// Ícones de exemplo (Ionicons, MaterialCommunityIcons)
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Camera } from 'expo-camera';
 
 export default function TelaRota({ route, navigation }) {
-  const { point } = route.params; // { latitude, longitude, nome, etc. }
+  const { point } = route.params || {};
 
   const [userLocation, setUserLocation] = useState(null);
   const [rotaCoords, setRotaCoords] = useState([]);
@@ -21,21 +22,27 @@ export default function TelaRota({ route, navigation }) {
   const [duration, setDuration] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Estado para saber qual modal (car, walk, bike) está ativo
   const [activeTransport, setActiveTransport] = useState('walk');
+  const [showCamera, setShowCamera] = useState(false);
+  const [hasCamPermission, setHasCamPermission] = useState(null);
+  const [cameraReady, setCameraReady] = useState(false);
 
   const mapRef = useRef(null);
+  const cameraRef = useRef(null);
 
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        alert('Permissão de localização não concedida');
+        Alert.alert('Permissão de localização não concedida');
         setLoading(false);
         return;
       }
       let loc = await Location.getCurrentPositionAsync({});
       setUserLocation(loc.coords);
+
+      const { status: camStatus } = await Camera.requestCameraPermissionsAsync();
+      setHasCamPermission(camStatus === 'granted');
     })();
   }, []);
 
@@ -46,40 +53,38 @@ export default function TelaRota({ route, navigation }) {
   }, [userLocation, activeTransport]);
 
   function criarRotaManual() {
-    // Gera rota curva manual com 10 segmentos
-    const coords = gerarRotaCurva(
-      userLocation.latitude,
-      userLocation.longitude,
-      parseFloat(point.latitude),
-      parseFloat(point.longitude),
-      10
-    );
+    if (!userLocation || !point) {
+      setLoading(false);
+      return;
+    }
 
-    // Distância "reta" via haversine
-    const dist = haversineDist(
-      userLocation.latitude,
-      userLocation.longitude,
-      parseFloat(point.latitude),
-      parseFloat(point.longitude)
-    );
+    const latOri = userLocation.latitude;
+    const lonOri = userLocation.longitude;
+
+    const latDest = parseFloat(point.latitude);
+    const lonDest = parseFloat(point.longitude);
+    if (isNaN(latDest) || isNaN(lonDest)) {
+      console.log('Coordenadas inválidas do destino:', point);
+      setLoading(false);
+      return;
+    }
+
+    const coords = gerarRotaCurva(latOri, lonOri, latDest, lonDest, 10);
+    setRotaCoords(coords);
+
+    const dist = haversineDist(latOri, lonOri, latDest, lonDest);
     setDistance(dist);
 
-    // Exemplo: se for 'car', definimos velocidade 40 km/h
-    // se 'walk', 5 km/h, se 'bike', 15 km/h
-    let speed = 5; // default walk
+    let speed = 5;
     if (activeTransport === 'car') speed = 40;
     if (activeTransport === 'bike') speed = 15;
 
-    // tempo em horas = dist / speed
-    // converter p/ minutos
     const tempoMin = (dist / speed) * 60;
     setDuration(tempoMin);
 
-    setRotaCoords(coords);
     setLoading(false);
   }
 
-  // Ajustar mapa p/ caber a rota
   useEffect(() => {
     if (rotaCoords.length > 0 && mapRef.current) {
       setTimeout(() => {
@@ -91,9 +96,28 @@ export default function TelaRota({ route, navigation }) {
     }
   }, [rotaCoords]);
 
-  // Função p/ trocar modal ativo
   function handleTransportChange(mode) {
     setActiveTransport(mode);
+  }
+
+  function handleScanPress() {
+    if (!hasCamPermission) {
+      Alert.alert('Câmera não permitida', 'Verifique as permissões');
+      return;
+    }
+    setShowCamera(true);
+  }
+
+  async function handleCapturePhoto() {
+    if (!cameraRef.current || !cameraReady) return;
+    try {
+      await cameraRef.current.takePictureAsync({ skipProcessing: true });
+      Alert.alert('QR code escaneado!', 'Seus Capibas foram adicionados à carteira.');
+    } catch (err) {
+      console.log('Erro ao tirar foto:', err);
+      Alert.alert('Erro', 'Não foi possível escanear o QR code.');
+    }
+    setShowCamera(false);
   }
 
   if (loading && !userLocation) {
@@ -105,9 +129,23 @@ export default function TelaRota({ route, navigation }) {
     );
   }
 
+  if (showCamera) {
+    return (
+      <View style={styles.container}>
+        <Camera
+          ref={cameraRef}
+          style={styles.camera}
+          onCameraReady={() => setCameraReady(true)}
+        />
+        <TouchableOpacity style={styles.captureButton} onPress={handleCapturePhoto}>
+          <Text style={styles.captureText}>Capturar</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      {/* Mapa */}
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -118,7 +156,6 @@ export default function TelaRota({ route, navigation }) {
           longitudeDelta: 0.02,
         }}
       >
-        {/* Marcador do usuário */}
         <Marker
           coordinate={{
             latitude: userLocation.latitude,
@@ -127,34 +164,29 @@ export default function TelaRota({ route, navigation }) {
           title="Você"
         />
 
-        {/* Marcador do destino */}
-        <Marker
-          coordinate={{
-            latitude: parseFloat(point.latitude),
-            longitude: parseFloat(point.longitude),
-          }}
-          title={point.nome || 'Destino'}
-          description={point.descricao || ''}
-        />
+        {point && point.latitude && point.longitude && (
+          <Marker
+            coordinate={{
+              latitude: parseFloat(point.latitude),
+              longitude: parseFloat(point.longitude),
+            }}
+            title={point.nome || 'Destino'}
+          />
+        )}
 
-        {/* Rota manual */}
         {rotaCoords.length > 0 && (
           <Polyline
             coordinates={rotaCoords}
-            strokeColor="#E1F44B" 
+            strokeColor="#E1F44B"
             strokeWidth={5}
           />
         )}
       </MapView>
 
-      {/* Componente branco embaixo */}
       <View style={styles.footerContainer}>
-        {/* Título */}
         <Text style={styles.footerTitle}>Sua rota</Text>
 
-        {/* Linha com botões de modal + botão Escanear */}
         <View style={styles.transportRow}>
-          {/* Botão carro */}
           <TouchableOpacity
             style={[
               styles.transportButton,
@@ -164,14 +196,9 @@ export default function TelaRota({ route, navigation }) {
             ]}
             onPress={() => handleTransportChange('car')}
           >
-            <MaterialCommunityIcons
-              name="car"
-              size={24}
-              color="#5B88B2"
-            />
+            <MaterialCommunityIcons name="car" size={24} color="#5B88B2" />
           </TouchableOpacity>
 
-          {/* Botão caminhada */}
           <TouchableOpacity
             style={[
               styles.transportButton,
@@ -181,14 +208,9 @@ export default function TelaRota({ route, navigation }) {
             ]}
             onPress={() => handleTransportChange('walk')}
           >
-            <MaterialCommunityIcons
-              name="walk"
-              size={24}
-              color="#5B88B2"
-            />
+            <MaterialCommunityIcons name="walk" size={24} color="#5B88B2" />
           </TouchableOpacity>
 
-          {/* Botão bike */}
           <TouchableOpacity
             style={[
               styles.transportButton,
@@ -198,15 +220,13 @@ export default function TelaRota({ route, navigation }) {
             ]}
             onPress={() => handleTransportChange('bike')}
           >
-            <MaterialCommunityIcons
-              name="bike"
-              size={24}
-              color="#5B88B2"
-            />
+            <MaterialCommunityIcons name="bike" size={24} color="#5B88B2" />
           </TouchableOpacity>
 
-          {/* Botão Escanear */}
-          <TouchableOpacity style={styles.scanButton}>
+          <TouchableOpacity
+            style={styles.scanButton}
+            onPress={handleScanPress}
+          >
             <Ionicons
               name="qr-code"
               size={20}
@@ -217,10 +237,9 @@ export default function TelaRota({ route, navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* Box cinza p/ dist e tempo */}
         <View style={styles.infoBox}>
           <Text style={styles.infoDistance}>
-            Distância: <Text style={styles.infoNumber}>{distance?.toFixed(2)}</Text> km
+            Distância: <Text style={styles.infoNumber}>{distance?.toFixed(2) || '0.00'}</Text> km
           </Text>
           <Text style={styles.infoTime}>
             Você chegará em: <Text style={styles.infoNumber}>{Math.round(duration || 0)}</Text> min
@@ -231,18 +250,16 @@ export default function TelaRota({ route, navigation }) {
   );
 }
 
-/** Rota Curva Manual */
 function gerarRotaCurva(lat1, lon1, lat2, lon2, segments) {
   const coords = [];
-  const amplitude = 0.001; 
-  const freq = 2;         
+  const amplitude = 0.001;
+  const freq = 2;
 
   for (let i = 0; i <= segments; i++) {
     const t = i / segments;
     let lat = lat1 + (lat2 - lat1) * t;
     let lon = lon1 + (lon2 - lon1) * t;
 
-    // offset sinusoidal
     lat += amplitude * Math.sin(freq * Math.PI * t);
     lon += amplitude * Math.cos(freq * Math.PI * t);
 
@@ -251,9 +268,9 @@ function gerarRotaCurva(lat1, lon1, lat2, lon2, segments) {
   return coords;
 }
 
-/** Distância Haversine */
 function haversineDist(lat1, lon1, lat2, lon2) {
-  const R = 6371; 
+  if (!lat1 || !lon1 || !lat2 || !lon2) return 0;
+  const R = 6371;
   const dLat = (lat2 - lat1) * (Math.PI / 180);
   const dLon = (lon2 - lon1) * (Math.PI / 180);
   const a =
@@ -267,17 +284,10 @@ function haversineDist(lat1, lon1, lat2, lon2) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  loadingContainer: {
-    flex: 1, alignItems: 'center', justifyContent: 'center',
-  },
   map: { flex: 1 },
-
   footerContainer: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    // Aumentar altura e bordas
+    bottom: 0, left: 0, right: 0,
     backgroundColor: '#FFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
@@ -295,12 +305,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   transportButton: {
-    width: 40,
-    height: 40,
+    width: 40, height: 40,
     borderRadius: 8,
     marginRight: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'center', alignItems: 'center',
   },
   transportButtonActive: {
     backgroundColor: '#122C4F',
@@ -311,16 +319,14 @@ const styles = StyleSheet.create({
   scanButton: {
     flexDirection: 'row',
     backgroundColor: '#E1F44B',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 8, paddingHorizontal: 12,
     borderRadius: 8,
-    marginLeft: 'auto', // empurra p/ direita
+    marginLeft: 'auto',
     alignItems: 'center',
   },
   scanButtonText: {
     color: '#3C3A3A',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 14, fontWeight: '600',
   },
   infoBox: {
     backgroundColor: '#EEEEEE',
@@ -339,8 +345,26 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   infoNumber: {
-    color: '#122C4F',
+    color: '122C4F',
     fontWeight: 'bold',
-    fontSize: 28,
+    fontSize: 23,
+  },
+  camera: { flex: 1 },
+  captureButton: {
+    position: 'absolute',
+    bottom: 50,
+    alignSelf: 'center',
+    backgroundColor: '#FFF',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  captureText: {
+    color: '#000',
+    fontWeight: '600',
+  },
+  loadingContainer: {
+    flex: 1, alignItems: 'center', justifyContent: 'center',
   },
 });
+

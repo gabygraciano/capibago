@@ -1,63 +1,70 @@
 // src/screens/TelaHome.js
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
-import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps';
+import * as Location from 'expo-location';
+import { useFocusEffect } from '@react-navigation/native';
 
 import Header from '../components/Header';
 import BottomNavBar from '../components/BottomNavBar';
-
-// JSONs crus
-import mercadosRaw from '../data/mercadospublicos.json';
-import museusRaw from '../data/museus.json';
+import { supabase } from '../services/supabaseClient';
 
 export default function TelaHome({ navigation }) {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [capipoints, setCapipoints] = useState([]);
 
-  // Converter cada record para objeto
-  const mercados = mercadosRaw.records.map((row) => ({
-    id: row[0],
-    nome: row[1],
-    descricao: row[2],
-    bairro: row[3],
-    latitude: row[4],
-    longitude: row[5],
-    tipo: 'mercado',
-  }));
+  // useFocusEffect: toda vez que a tela "Home" volta a ficar em foco, re-rodamos a lógica
+  useFocusEffect(
+    React.useCallback(() => {
+      let isActive = true;
 
-  const museus = museusRaw.records.map((row) => ({
-    id: row[0],
-    nome: row[1],
-    descricao: row[2],
-    bairro: row[3],
-    logradouro: row[4],
-    latitude: row[5],
-    longitude: row[6],
-    telefone: row[7],
-    site: row[8],
-    tipo: 'museu',
-  }));
+      (async () => {
+        // 1) Pedir permissão de localização
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          if (isActive) {
+            setErrorMsg('Permissão de localização não concedida');
+          }
+          return;
+        }
 
-  // Juntar tudo
-  const allPoints = [...mercados, ...museus];
+        // 2) Obter localização atual
+        const currentLocation = await Location.getCurrentPositionAsync({});
+        if (isActive) {
+          setLocation(currentLocation.coords);
+        }
 
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permissão de localização não concedida');
-        return;
-      }
-      let currentLocation = await Location.getCurrentPositionAsync({});
-      setLocation(currentLocation.coords);
-    })();
-  }, []);
+        // 3) Buscar capipoints do Supabase
+        if (isActive) {
+          await fetchCapipoints();
+        }
+      })();
 
-  // Ao clicar no Marker, navegamos para TelaRota passando { point }
-  const handleMarkerPress = (point) => {
+      // Se o usuário sair da tela antes de terminar, cancelamos
+      return () => {
+        isActive = false;
+      };
+    }, []) // sem dependências => só roda quando tela fica em foco
+  );
+
+  async function fetchCapipoints() {
+    const { data, error } = await supabase
+      .from('capipoints')
+      .select('*');
+
+    if (error) {
+      console.log('Erro ao buscar capipoints:', error);
+      setErrorMsg('Erro ao buscar pontos do banco');
+      return;
+    }
+    console.log('capipoints => data:', data);
+    setCapipoints(data);
+  }
+
+  function handleMarkerPress(point) {
     navigation.navigate('TelaRota', { point });
-  };
+  }
 
   return (
     <View style={styles.container}>
@@ -79,23 +86,25 @@ export default function TelaHome({ navigation }) {
             }}
             showsUserLocation={true}
           >
-            {allPoints.map((point) => {
+            {capipoints.map((point) => {
               const lat = parseFloat(point.latitude);
               const lng = parseFloat(point.longitude);
-
-              return (
-                <Marker
-                  key={`${point.tipo}-${point.id}`}
-                  coordinate={{ latitude: lat, longitude: lng }}
-                  onPress={() => handleMarkerPress(point)}
-                >
-                  <Image
-                    source={require('../assets/CapiPoint.png')}
-                    style={{ width: 32, height: 32 }}
-                    resizeMode="contain"
-                  />
-                </Marker>
-              );
+              if (!isNaN(lat) && !isNaN(lng)) {
+                return (
+                  <Marker
+                    key={point.id}
+                    coordinate={{ latitude: lat, longitude: lng }}
+                    onPress={() => handleMarkerPress(point)}
+                  >
+                    <Image
+                      source={require('../assets/CapiPoint.png')}
+                      style={{ width: 32, height: 32 }}
+                      resizeMode="contain"
+                    />
+                  </Marker>
+                );
+              }
+              return null;
             })}
           </MapView>
         )}

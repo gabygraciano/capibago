@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, FlatList, Image, StyleSheet } from "react-native";
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
+import Ionicons from '@expo/vector-icons/Ionicons'; // Ícone de setinha
 
 const membros = [
   {
@@ -52,9 +53,21 @@ const membros = [
   },
 ];
 
-const TelaGrupoInter = () => {
+const TelaGrupoInter = ({ navigation }) => {
+  function handleBack() {
+    // Volta para TelaGrupo
+    navigation.navigate("TelaGrupo");
+  }
+
   return (
     <View style={styles.container}>
+
+      {/* Ícone de setinha no canto superior esquerdo */}
+      <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+        <Ionicons name="arrow-back" size={24} color="#fff" />
+      </TouchableOpacity>
+
+      {/* Cabeçalho do Grupo */}
       <View style={styles.header}>
         <Image
           source={require("../assets/nuvens-do-ibura.png")}
@@ -91,11 +104,45 @@ const TelaGrupoInter = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FEFBE6", padding: 20 },
-  header: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
-  grupoImagem: { width: 60, height: 60, borderRadius: 30, marginRight: 10 },
-  grupoNome: { fontSize: 18, fontWeight: "bold", color: "#1E2A47" },
-  grupoCodigo: { fontSize: 14, color: "#5A5A5A" },
+  container: {
+    flex: 1,
+    backgroundColor: "#FEFBE6",
+    padding: 20,
+    // Adiciona mais espaço no topo
+    paddingTop: 60, 
+  },
+  // Ícone de voltar (setinha)
+  backButton: {
+    position: 'absolute',
+    top: 30, 
+    left: 20,
+    zIndex: 10,
+    backgroundColor: '#253673',
+    borderRadius: 20,
+    padding: 6,
+    marginTop: 30,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    marginTop: 60, // espaçamento extra
+  },
+  grupoImagem: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 10,
+  },
+  grupoNome: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1E2A47",
+  },
+  grupoCodigo: {
+    fontSize: 14,
+    color: "#5A5A5A",
+  },
   titulo: {
     fontSize: 20,
     fontWeight: "bold",
@@ -109,12 +156,37 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#DDD",
   },
-  posicao: { fontSize: 16, fontWeight: "bold", width: 30, color: "#1E2A47" },
-  membroImagem: { width: 40, height: 40, borderRadius: 20, marginRight: 10 },
-  membroNome: { fontSize: 16, flex: 1, color: "#1E2A47" },
-  pontosContainer: { flexDirection: "row", alignItems: "center" },
-  moeda: { width: 16, height: 16, marginRight: 5 },
-  pontos: { fontSize: 14, fontWeight: "bold", color: "#1E2A47" },
+  posicao: {
+    fontSize: 16,
+    fontWeight: "bold",
+    width: 30,
+    color: "#1E2A47",
+  },
+  membroImagem: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  membroNome: {
+    fontSize: 16,
+    flex: 1,
+    color: "#1E2A47",
+  },
+  pontosContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  moeda: {
+    width: 16,
+    height: 16,
+    marginRight: 5,
+  },
+  pontos: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#1E2A47",
+  },
 });
 
 export default TelaGrupoInter;
