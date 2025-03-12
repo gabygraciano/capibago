@@ -1,3 +1,4 @@
+// src/navigation/AppNavigator.js
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -14,15 +15,40 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="TelaLogin">
+        {/* Tela de Login */}
         <Stack.Screen 
           name="TelaLogin" 
           component={TelaLogin} 
           options={{ headerShown: false }} 
         />
-        <Stack.Screen name="TelaHome" component={TelaHome} />
-        <Stack.Screen name="TelaRota" component={TelaRota} />
-        <Stack.Screen name="TelaGrupo" component={TelaGrupo} />
-        <Stack.Screen name="TelaCarteira" component={TelaCarteira} />
+
+        {/* Tela Home (mapa, capipoints) */}
+        <Stack.Screen 
+          name="TelaHome" 
+          component={TelaHome} 
+          options={{ title: 'Home' }}
+        />
+
+        {/* Tela Rota (exibe rota do usuário até o ponto) */}
+        <Stack.Screen 
+          name="TelaRota" 
+          component={TelaRota} 
+          options={{ title: 'Rota' }}
+        />
+
+        {/* Tela Grupo */}
+        <Stack.Screen 
+          name="TelaGrupo" 
+          component={TelaGrupo} 
+          options={{ title: 'Grupo' }}
+        />
+
+        {/* Tela Carteira */}
+        <Stack.Screen 
+          name="TelaCarteira" 
+          component={TelaCarteira} 
+          options={{ title: 'Carteira' }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
