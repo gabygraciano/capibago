@@ -11,7 +11,6 @@ import {
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Camera } from 'expo-camera';
 
 export default function TelaRota({ route, navigation }) {
   const { point } = route.params || {};
@@ -21,28 +20,22 @@ export default function TelaRota({ route, navigation }) {
   const [distance, setDistance] = useState(null);
   const [duration, setDuration] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const [activeTransport, setActiveTransport] = useState('walk');
-  const [showCamera, setShowCamera] = useState(false);
-  const [hasCamPermission, setHasCamPermission] = useState(null);
-  const [cameraReady, setCameraReady] = useState(false);
 
   const mapRef = useRef(null);
-  const cameraRef = useRef(null);
 
   useEffect(() => {
     (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      // Solicita permissão de localização
+      const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert('Permissão de localização não concedida');
         setLoading(false);
         return;
       }
+      // Obtém a localização atual
       let loc = await Location.getCurrentPositionAsync({});
       setUserLocation(loc.coords);
-
-      const { status: camStatus } = await Camera.requestCameraPermissionsAsync();
-      setHasCamPermission(camStatus === 'granted');
     })();
   }, []);
 
@@ -52,6 +45,7 @@ export default function TelaRota({ route, navigation }) {
     }
   }, [userLocation, activeTransport]);
 
+  // Função para criar rota manual, calcular distância e duração
   function criarRotaManual() {
     if (!userLocation || !point) {
       setLoading(false);
@@ -60,31 +54,36 @@ export default function TelaRota({ route, navigation }) {
 
     const latOri = userLocation.latitude;
     const lonOri = userLocation.longitude;
-
     const latDest = parseFloat(point.latitude);
     const lonDest = parseFloat(point.longitude);
+
     if (isNaN(latDest) || isNaN(lonDest)) {
       console.log('Coordenadas inválidas do destino:', point);
       setLoading(false);
       return;
     }
 
+    // Gera uma rota curva "falsa"
     const coords = gerarRotaCurva(latOri, lonOri, latDest, lonDest, 10);
     setRotaCoords(coords);
 
+    // Calcula a distância em km
     const dist = haversineDist(latOri, lonOri, latDest, lonDest);
     setDistance(dist);
 
-    let speed = 5;
-    if (activeTransport === 'car') speed = 40;
-    if (activeTransport === 'bike') speed = 15;
+    // Ajusta a velocidade de acordo com o transporte
+    let speed = 5; // 5 km/h para "walk"
+    if (activeTransport === 'car') speed = 40; // 40 km/h para "car"
+    if (activeTransport === 'bike') speed = 15; // 15 km/h para "bike"
 
+    // Tempo em minutos
     const tempoMin = (dist / speed) * 60;
     setDuration(tempoMin);
 
     setLoading(false);
   }
 
+  // Ajusta o zoom do mapa para abranger todos os pontos
   useEffect(() => {
     if (rotaCoords.length > 0 && mapRef.current) {
       setTimeout(() => {
@@ -96,28 +95,14 @@ export default function TelaRota({ route, navigation }) {
     }
   }, [rotaCoords]);
 
+  // Alterar o modo de transporte (car, walk, bike)
   function handleTransportChange(mode) {
     setActiveTransport(mode);
   }
 
+  // Botão de escanear -> navega para a CameraScreen
   function handleScanPress() {
-    if (!hasCamPermission) {
-      Alert.alert('Câmera não permitida', 'Verifique as permissões');
-      return;
-    }
-    setShowCamera(true);
-  }
-
-  async function handleCapturePhoto() {
-    if (!cameraRef.current || !cameraReady) return;
-    try {
-      await cameraRef.current.takePictureAsync({ skipProcessing: true });
-      Alert.alert('QR code escaneado!', 'Seus Capibas foram adicionados à carteira.');
-    } catch (err) {
-      console.log('Erro ao tirar foto:', err);
-      Alert.alert('Erro', 'Não foi possível escanear o QR code.');
-    }
-    setShowCamera(false);
+    navigation.navigate('CameraScreen');
   }
 
   if (loading && !userLocation) {
@@ -129,23 +114,16 @@ export default function TelaRota({ route, navigation }) {
     );
   }
 
-  if (showCamera) {
-    return (
-      <View style={styles.container}>
-        <Camera
-          ref={cameraRef}
-          style={styles.camera}
-          onCameraReady={() => setCameraReady(true)}
-        />
-        <TouchableOpacity style={styles.captureButton} onPress={handleCapturePhoto}>
-          <Text style={styles.captureText}>Capturar</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
+      {/* Botão de voltar */}
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.navigate('TelaHome')}
+      >
+        <Ionicons name="arrow-back" size={28} color="#FFF" />
+      </TouchableOpacity>
+
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -156,6 +134,7 @@ export default function TelaRota({ route, navigation }) {
           longitudeDelta: 0.02,
         }}
       >
+        {/* Marker do usuário */}
         <Marker
           coordinate={{
             latitude: userLocation.latitude,
@@ -164,6 +143,7 @@ export default function TelaRota({ route, navigation }) {
           title="Você"
         />
 
+        {/* Marker do destino, se existir */}
         {point && point.latitude && point.longitude && (
           <Marker
             coordinate={{
@@ -174,6 +154,7 @@ export default function TelaRota({ route, navigation }) {
           />
         )}
 
+        {/* Rota manual */}
         {rotaCoords.length > 0 && (
           <Polyline
             coordinates={rotaCoords}
@@ -223,10 +204,8 @@ export default function TelaRota({ route, navigation }) {
             <MaterialCommunityIcons name="bike" size={24} color="#5B88B2" />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.scanButton}
-            onPress={handleScanPress}
-          >
+          {/* Botão para escanear */}
+          <TouchableOpacity style={styles.scanButton} onPress={handleScanPress}>
             <Ionicons
               name="qr-code"
               size={20}
@@ -250,27 +229,30 @@ export default function TelaRota({ route, navigation }) {
   );
 }
 
+/**
+ * Função que gera coordenadas de rota curva "fake"
+ */
 function gerarRotaCurva(lat1, lon1, lat2, lon2, segments) {
   const coords = [];
   const amplitude = 0.001;
   const freq = 2;
-
   for (let i = 0; i <= segments; i++) {
     const t = i / segments;
     let lat = lat1 + (lat2 - lat1) * t;
     let lon = lon1 + (lon2 - lon1) * t;
-
     lat += amplitude * Math.sin(freq * Math.PI * t);
     lon += amplitude * Math.cos(freq * Math.PI * t);
-
     coords.push({ latitude: lat, longitude: lon });
   }
   return coords;
 }
 
+/**
+ * Calcula a distância em km usando a fórmula de haversine
+ */
 function haversineDist(lat1, lon1, lat2, lon2) {
   if (!lat1 || !lon1 || !lat2 || !lon2) return 0;
-  const R = 6371;
+  const R = 6371; // raio da Terra em km
   const dLat = (lat2 - lat1) * (Math.PI / 180);
   const dLon = (lon2 - lon1) * (Math.PI / 180);
   const a =
@@ -285,9 +267,20 @@ function haversineDist(lat1, lon1, lat2, lon2) {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { flex: 1 },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    zIndex: 10,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    padding: 8,
+    borderRadius: 20,
+  },
   footerContainer: {
     position: 'absolute',
-    bottom: 0, left: 0, right: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
     backgroundColor: '#FFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
@@ -305,10 +298,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   transportButton: {
-    width: 40, height: 40,
+    width: 40,
+    height: 40,
     borderRadius: 8,
     marginRight: 8,
-    justifyContent: 'center', alignItems: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   transportButtonActive: {
     backgroundColor: '#122C4F',
@@ -319,14 +314,16 @@ const styles = StyleSheet.create({
   scanButton: {
     flexDirection: 'row',
     backgroundColor: '#E1F44B',
-    paddingVertical: 8, paddingHorizontal: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 8,
     marginLeft: 'auto',
     alignItems: 'center',
   },
   scanButtonText: {
     color: '#3C3A3A',
-    fontSize: 14, fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '600',
   },
   infoBox: {
     backgroundColor: '#EEEEEE',
@@ -345,26 +342,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   infoNumber: {
-    color: '122C4F',
+    color: '#122C4F',
     fontWeight: 'bold',
     fontSize: 23,
   },
-  camera: { flex: 1 },
-  captureButton: {
-    position: 'absolute',
-    bottom: 50,
-    alignSelf: 'center',
-    backgroundColor: '#FFF',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  captureText: {
-    color: '#000',
-    fontWeight: '600',
-  },
   loadingContainer: {
-    flex: 1, alignItems: 'center', justifyContent: 'center',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
-
