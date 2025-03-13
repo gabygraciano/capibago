@@ -69,7 +69,7 @@ Desafio Gamificação no Conecta Recife: Como podemos ampliar a participação p
 ## Documentação 📄
 
 - [Figma](https://www.figma.com/design/c083sXMHGeONJrSzYSbU3n/CapibaGo?node-id=0-1&t=xxMQXY32AsRRZIZd-1)
-- [Pitch](colocar link aqui)
+- [Pitch](https://docs.google.com/presentation/d/1Uux5_HOsO_8ycZFP4b0ZRpm7pJAY7d2Ti2AQzNBCy9k/edit?usp=sharing)
 - [Vídeo de Demonstração](https://youtube.com/shorts/g0PqF8p7Psg?si=FFZRF1xsirs3Ggfd)
 
 
