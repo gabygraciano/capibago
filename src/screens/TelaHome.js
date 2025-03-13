@@ -1,5 +1,5 @@
 // src/screens/TelaHome.js
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -7,60 +7,75 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import Header from '../components/Header';
 import BottomNavBar from '../components/BottomNavBar';
-import { supabase } from '../services/supabaseClient';
 
 export default function TelaHome({ navigation }) {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [capipoints, setCapipoints] = useState([]);
 
-  // useFocusEffect: toda vez que a tela "Home" volta a ficar em foco, re-rodamos a lógica
+  // Capipoint manual conforme os dados do backend
+  const manualCapipoints = [
+    {
+      id: '55d04c41-9ce4-4e43-80af-b52448c3f9f7',
+      name: 'Cais do Sertão',
+      latitude: '-8.0631633',
+      longitude: '-34.8711337',
+      qr_codetext: 'MUSEU-14',
+      create_attimestamp: '12/03/2025 10:13:54'
+    }
+  ];
+
+  const mapRef = useRef(null);
+
   useFocusEffect(
     React.useCallback(() => {
       let isActive = true;
 
       (async () => {
-        // 1) Pedir permissão de localização
+        // Solicita a permissão de localização
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-          if (isActive) {
-            setErrorMsg('Permissão de localização não concedida');
-          }
+          if (isActive) setErrorMsg('Permissão de localização não concedida');
           return;
         }
 
-        // 2) Obter localização atual
+        // Obtém a localização atual do usuário
         const currentLocation = await Location.getCurrentPositionAsync({});
         if (isActive) {
+          console.log('Localização obtida:', currentLocation.coords);
           setLocation(currentLocation.coords);
-        }
-
-        // 3) Buscar capipoints do Supabase
-        if (isActive) {
-          await fetchCapipoints();
         }
       })();
 
-      // Se o usuário sair da tela antes de terminar, cancelamos
       return () => {
         isActive = false;
       };
-    }, []) // sem dependências => só roda quando tela fica em foco
+    }, [])
   );
 
-  async function fetchCapipoints() {
-    const { data, error } = await supabase
-      .from('capipoints')
-      .select('*');
+  // Quando a localização do usuário estiver disponível, ajusta o mapa para incluir todos os markers
+  useEffect(() => {
+    if (mapRef.current && location) {
+      // Marker do usuário
+      const userMarker = {
+        latitude: location.latitude,
+        longitude: location.longitude,
+      };
 
-    if (error) {
-      console.log('Erro ao buscar capipoints:', error);
-      setErrorMsg('Erro ao buscar pontos do banco');
-      return;
+      // Marker do capipoint manual
+      const capipointMarkers = manualCapipoints.map(point => ({
+        latitude: parseFloat(point.latitude),
+        longitude: parseFloat(point.longitude),
+      }));
+
+      // Concatena os markers
+      const markers = [userMarker, ...capipointMarkers];
+
+      mapRef.current.fitToCoordinates(markers, {
+        edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+        animated: true,
+      });
     }
-    console.log('capipoints => data:', data);
-    setCapipoints(data);
-  }
+  }, [location]);
 
   function handleMarkerPress(point) {
     navigation.navigate('TelaRota', { point });
@@ -77,34 +92,42 @@ export default function TelaHome({ navigation }) {
           <Text style={styles.loading}>Carregando localização...</Text>
         ) : (
           <MapView
+            ref={mapRef}
             style={styles.map}
+            // Inicializa o mapa centrado na localização do usuário
             initialRegion={{
               latitude: location.latitude,
               longitude: location.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
+              latitudeDelta: 0.05,
+              longitudeDelta: 0.05,
             }}
             showsUserLocation={true}
           >
-            {capipoints.map((point) => {
+            {/* Marker para a localização do usuário (ícone padrão) */}
+            <Marker
+              coordinate={{
+                latitude: location.latitude,
+                longitude: location.longitude,
+              }}
+            />
+
+            {/* Marker para o capipoint manual com ícone customizado */}
+            {manualCapipoints.map((point) => {
               const lat = parseFloat(point.latitude);
               const lng = parseFloat(point.longitude);
-              if (!isNaN(lat) && !isNaN(lng)) {
-                return (
-                  <Marker
-                    key={point.id}
-                    coordinate={{ latitude: lat, longitude: lng }}
-                    onPress={() => handleMarkerPress(point)}
-                  >
-                    <Image
-                      source={require('../assets/CapiPoint.png')}
-                      style={{ width: 32, height: 32 }}
-                      resizeMode="contain"
-                    />
-                  </Marker>
-                );
-              }
-              return null;
+              return (
+                <Marker
+                  key={point.id}
+                  coordinate={{ latitude: lat, longitude: lng }}
+                  onPress={() => handleMarkerPress(point)}
+                >
+                  <Image
+                    source={require('../assets/CapiPoint.png')}
+                    style={{ width: 32, height: 32 }}
+                    resizeMode="contain"
+                  />
+                </Marker>
+              );
             })}
           </MapView>
         )}

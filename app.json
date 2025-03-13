@@ -12,6 +12,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.capibago",
       "infoPlist": {
+        "NSCameraUsageDescription": "Este app usa a câmera para escanear QR codes e validar capipoints.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
