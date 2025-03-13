@@ -1,23 +1,54 @@
-![readme](https://github.com/user-attachments/assets/4cc9edd0-852c-40d2-a80b-eb2de0676386)
+
+# Copibo
 
 ## Descrição ℹ️
-CapibaGO é um aplicativo que une **gamificação** e **cidadania**, incentivando as pessoas a realizarem atividades físicas, visitarem pontos turísticos, consumirem cultura local e movimentarem a economia através da participação em desafios para ganhar recompensas enquanto cuidam da saúde e da cidade.
+Copibo é um aplicativo que une **gamificação** e **cidadania**, incentivando as pessoas a realizarem atividades físicas, visitarem pontos turísticos, consumirem cultura local e movimentarem a economia através da participação em desafios para ganhar recompensas enquanto cuidam da saúde e da cidade.
 
-## Trilha escolhida no hackathon 🚀
-(colocar aqui o desafio depois)
+## Desafio 2 🚀
+Desafio Gamificação no Conecta Recife: Como podemos ampliar a participação popular e estimular boas práticas cidadãs por meio da gamificação e da moeda Capiba no Conecta Recife?
 
 ## Funcionalidades 📋
+1. **Cadastro e login de usuários**  
+   - Integração com o backend (Supabase) para armazenamento seguro dos dados de login.
+     
+2. **Desafios e Gamificação**  
+   - Usuário ganha recompensas ao cumprir metas (andar de bicicleta, caminhar, visitar locais, etc.).
 
+3. **Mapas e rotas**  
+   - Exibe a localização do usuário em tempo real (via expo-location).
+   - Calcula rota manual até CapiPontos (MapView, markers).
+   - Possível ver tempo e distância para chegar via caminhada, bicicleta e carro.
+   - No backend está hospedado diversos CapiPontos de museus e mercados públicos através dos [Dados Abertos da Prefeitura do Recife](http://dados.recife.pe.gov.br/pt_BR/dataset/roteiros-culturais-turismo-e-lazer).
+
+4. **Escaneamento de QR Code**  
+   - Usa expo-image-picker para abrir a câmera e fazer a leitura do QR code.
+   - Integração com Supabase para atualizar valores na Carteira do usuário (capipontos, capiba, etc.) sempre que um QR Code for escaneado
+
+4. **Carteira de pontos**  
+   - Exibe estatísticas de km andados, capipontos, capiba e CO₂ evitados quando você opta por caminhar/andar de bicicleta.
+   - Consulta em tempo real ao banco (Supabase) sempre que a tela é aberta/focada.
 
 ## Tech Stack ⚙️
 
 ### Frontend
-![React Native](https://img.shields.io/badge/React%20Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+- ![React Native](https://img.shields.io/badge/React%20Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+- ![Expo](https://img.shields.io/badge/Expo-1C1E24?style=for-the-badge&logo=expo&logoColor=white)
+- ![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
+- ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+
+#### Bibliotecas e APIs do Frontend
+- **expo-location**: para obter a localização do usuário.  
+- **react-native-maps**: para exibir mapas e markers.  
+- **expo-image-picker**: para a leitura de QR code via câmera.  
+- **@expo/vector-icons**: para ícones do MaterialCommunityIcons, Ionicons, etc.
 
 ### Backend
-![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+- ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+
+#### Bibliotecas e APIs do Backend
+- **PostgreSQL** (via Supabase): armazenamento de dados (carteira, usuário).
+- **Supabase Auth** (opcional): se estiver usando login/registro pelo Supabase.
+- **Supabase JavaScript Client**: para comunicação entre o app e o banco.
 
 ## Equipe 🏆
 
@@ -38,7 +69,7 @@ CapibaGO é um aplicativo que une **gamificação** e **cidadania**, incentivand
 
 ## Documentação 📄
 
-- [Figma](colocar link aqui)
+- [Figma](https://www.figma.com/design/c083sXMHGeONJrSzYSbU3n/CapibaGo?node-id=0-1&t=xxMQXY32AsRRZIZd-1)
 - [Pitch](colocar link aqui)
 - [Vídeo de Demonstração](colocar link aqui)
 
