@@ -1,8 +1,7 @@
-
-# Copibo
+![readme](https://github.com/user-attachments/assets/9a3f9f97-31c5-4809-b4d6-f5802bf0a172)
 
 ## Descrição ℹ️
-Copibo é um aplicativo que une **gamificação** e **cidadania**, incentivando as pessoas a realizarem atividades físicas, visitarem pontos turísticos, consumirem cultura local e movimentarem a economia através da participação em desafios para ganhar recompensas enquanto cuidam da saúde e da cidade.
+Copiba é um aplicativo que une **gamificação** e **cidadania**, incentivando as pessoas a realizarem atividades físicas, visitarem pontos turísticos, consumirem cultura local e movimentarem a economia através da participação em desafios para ganhar recompensas enquanto cuidam da saúde e da cidade.
 
 ## Desafio 2 🚀
 Desafio Gamificação no Conecta Recife: Como podemos ampliar a participação popular e estimular boas práticas cidadãs por meio da gamificação e da moeda Capiba no Conecta Recife?
@@ -71,7 +70,7 @@ Desafio Gamificação no Conecta Recife: Como podemos ampliar a participação p
 
 - [Figma](https://www.figma.com/design/c083sXMHGeONJrSzYSbU3n/CapibaGo?node-id=0-1&t=xxMQXY32AsRRZIZd-1)
 - [Pitch](colocar link aqui)
-- [Vídeo de Demonstração](colocar link aqui)
+- [Vídeo de Demonstração](https://youtube.com/shorts/g0PqF8p7Psg?si=FFZRF1xsirs3Ggfd)
 
 
 ## Instalação ⬇️
